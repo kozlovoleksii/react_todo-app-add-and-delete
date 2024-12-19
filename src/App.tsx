@@ -69,36 +69,51 @@ export const App: React.FC = () => {
 
   function submitTodo(e: React.FormEvent) {
     e.preventDefault();
+
     if (title.trim() === '') {
       sendErrorMessage('Title should not be empty', setErrorMessage);
-
       return;
     }
 
+    // Створюємо тимчасову тудушку
     const newTempTodo: Todo = {
-      id: 0,
+      id: 0, // Тимчасовий id
       userId: USER_ID,
       title: title.trim(),
       completed: false,
     };
 
+    // Зберігаємо тимчасову тудушку у стан
     setTempTodo(newTempTodo);
+
+    // Починаємо показ лоадера
     setLoader(true);
 
+    // Відправляємо запит на сервер
     postTodo({
       userId: USER_ID,
       title: title,
       completed: false,
     })
       .then(data => {
+        // Додаємо нову тудушку з сервера до списку
         setTodoList(preTodoList => [...preTodoList, data]);
+
+        // Видаляємо тимчасову тудушку
         setTempTodo(null);
+
+        // Очищаємо інпут
         setTitle('');
-        setLoader(false);
       })
       .catch(error => {
+        // У разі помилки видаляємо тимчасову тудушку
+        setTempTodo(null);
         sendErrorMessage('Unable to add a todo', setErrorMessage);
         throw new Error(error);
+      })
+      .finally(() => {
+        // Зупиняємо показ лоадера
+        setLoader(false);
       });
   }
 
@@ -188,15 +203,37 @@ export const App: React.FC = () => {
               >
                 ×
               </button>
+            </div>
+          ))}
+
+          {tempTodo && (
+            <div
+              data-cy="Todo"
+              className={classNames('todo', 'todo--loading')}
+              key="tempTodo"
+            >
+              <label className="todo__status-label">
+                <input
+                  data-cy="TodoStatus"
+                  type="checkbox"
+                  className="todo__status"
+                  disabled
+                />
+              </label>
+
+              <span data-cy="TodoTitle" className="todo__title">
+                {tempTodo.title}
+              </span>
+              <button type="button" className="todo__remove" disabled>
+                ×
+              </button>
 
               <div data-cy="TodoLoader" className="modal overlay">
                 <div className="modal-background has-background-white-ter" />
                 <div className="loader" />
               </div>
             </div>
-          ))}
-          {/* test! */}
-          {false && tempTodo}
+          )}
         </section>
 
         {/* Hide the footer if there are no todos */}
