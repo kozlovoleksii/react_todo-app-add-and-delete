@@ -6,7 +6,6 @@ import { deleteTodo, getTodos, postTodo, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import classNames from 'classnames';
 import { sendErrorMessage } from './utils/sendError';
-import { log } from 'console';
 
 export const App: React.FC = () => {
   const [todoList, setTodoList] = useState<Todo[]>([]);
@@ -73,6 +72,7 @@ export const App: React.FC = () => {
 
     if (title.trim() === '') {
       sendErrorMessage('Title should not be empty', setErrorMessage);
+
       return;
     }
 
@@ -130,11 +130,6 @@ export const App: React.FC = () => {
     } catch {
       sendErrorMessage('Unable to delete a todo', setErrorMessage);
     }
-  }
-
-  function testtest(){
-    console.log('ти натискаєш кнопку');
-    
   }
 
   return (
@@ -309,8 +304,6 @@ export const App: React.FC = () => {
         Unable to delete a todo
         <br />
         Unable to update a todo */}
-
-        
       </div>
     </div>
   );
