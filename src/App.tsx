@@ -6,6 +6,7 @@ import { deleteTodo, getTodos, postTodo, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import classNames from 'classnames';
 import { sendErrorMessage } from './utils/sendError';
+import { log } from 'console';
 
 export const App: React.FC = () => {
   const [todoList, setTodoList] = useState<Todo[]>([]);
@@ -72,11 +73,9 @@ export const App: React.FC = () => {
 
     if (title.trim() === '') {
       sendErrorMessage('Title should not be empty', setErrorMessage);
-
       return;
     }
 
-    // Створюємо тимчасову тудушку
     const newTempTodo: Todo = {
       id: 0, // Тимчасовий id
       userId: USER_ID,
@@ -84,36 +83,25 @@ export const App: React.FC = () => {
       completed: false,
     };
 
-    // Зберігаємо тимчасову тудушку у стан
     setTempTodo(newTempTodo);
-
-    // Починаємо показ лоадера
     setLoader(true);
 
-    // Відправляємо запит на сервер
     postTodo({
       userId: USER_ID,
       title: title,
       completed: false,
     })
       .then(data => {
-        // Додаємо нову тудушку з сервера до списку
         setTodoList(preTodoList => [...preTodoList, data]);
-
-        // Видаляємо тимчасову тудушку
         setTempTodo(null);
-
-        // Очищаємо інпут
         setTitle('');
       })
       .catch(error => {
-        // У разі помилки видаляємо тимчасову тудушку
         setTempTodo(null);
         sendErrorMessage('Unable to add a todo', setErrorMessage);
         throw new Error(error);
       })
       .finally(() => {
-        // Зупиняємо показ лоадера
         setLoader(false);
       });
   }
@@ -142,6 +130,11 @@ export const App: React.FC = () => {
     } catch {
       sendErrorMessage('Unable to delete a todo', setErrorMessage);
     }
+  }
+
+  function testtest(){
+    console.log('ти натискаєш кнопку');
+    
   }
 
   return (
@@ -316,6 +309,8 @@ export const App: React.FC = () => {
         Unable to delete a todo
         <br />
         Unable to update a todo */}
+
+        
       </div>
     </div>
   );
