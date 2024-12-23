@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { deleteTodo, getTodos, postTodo, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
-import { sendErrorMessage } from './utils/sendError';
+import { sendErrorMessage } from './components/errorsUnderFooter';
 import { useRef } from 'react';
 import { Footer } from './components/footer';
 import { ErrorMessage } from './components/errorsUnderFooter';
@@ -29,7 +29,8 @@ export const App: React.FC = () => {
         setFilteredTodoList(data);
       })
       .catch(() => {
-        sendErrorMessage('Unable to load todos', setErrorMessage);
+        setErrorMessage('Unable to load todos');
+        setTimeout(() => setErrorMessage(''), 3000);
       });
   }, []);
 

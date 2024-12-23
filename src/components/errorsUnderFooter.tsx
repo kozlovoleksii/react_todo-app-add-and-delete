@@ -1,5 +1,15 @@
 import classNames from 'classnames';
 
+export function sendErrorMessage(
+  errorText: string,
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>,
+) {
+  setErrorMessage(errorText);
+  setTimeout(() => {
+    setErrorMessage('');
+  }, 3000);
+}
+
 type Props = {
   message: string;
   clearMessage: () => void;

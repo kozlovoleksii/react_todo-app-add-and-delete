@@ -4,3 +4,11 @@ export interface Todo {
   title: string;
   completed: boolean;
 }
+
+export type TypeTodoList = {
+  filteredTodoList: Todo[];
+  deletingTodos: number[];
+  handleToggleCompletion: (numb: number) => void;
+  handleDeleteTodo: (numb: number) => void;
+  tempTodo?: Todo | null;
+};
