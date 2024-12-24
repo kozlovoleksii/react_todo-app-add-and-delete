@@ -1,59 +1,43 @@
 import classNames from 'classnames';
 import { Todo } from '../types/Todo';
+import { Filter } from '../types/Filter';
 
 type Props = {
   todoList: Todo[];
   selectedFilter: string;
-  filterTodos: (str: string) => void;
+  setSelectedFilter: (filter: Filter) => void;
   handleDeleteCompletedTodo: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
   todoList,
   selectedFilter,
-  filterTodos,
+  setSelectedFilter,
   handleDeleteCompletedTodo,
 }) => {
+  const TodoItemsLeft = todoList.filter(todo => !todo.completed).length;
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {todoList.filter(todo => !todo.completed).length} items left
+        {TodoItemsLeft} items left
       </span>
 
       {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={classNames('filter__link', {
-            selected: selectedFilter === 'all',
-          })}
-          data-cy="FilterLinkAll"
-          onClick={() => filterTodos('all')}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={classNames('filter__link', {
-            selected: selectedFilter === 'active',
-          })}
-          data-cy="FilterLinkActive"
-          onClick={() => filterTodos('active')}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={classNames('filter__link', {
-            selected: selectedFilter === 'completed',
-          })}
-          data-cy="FilterLinkCompleted"
-          onClick={() => filterTodos('completed')}
-        >
-          Completed
-        </a>
+        {Object.values(Filter).map(filter => (
+          <a
+            key={filter}
+            href={`#/${filter}`}
+            className={classNames('filter__link', {
+              selected: selectedFilter === filter,
+            })}
+            data-cy={`FilterLink${filter.charAt(0).toUpperCase() + filter.slice(1)}`}
+            onClick={() => setSelectedFilter(filter)}
+          >
+            {filter.charAt(0).toUpperCase() + filter.slice(1)}
+          </a>
+        ))}
       </nav>
 
       {/* this button should be disabled if there are no completed todos */}

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { UserWarning } from './UserWarning';
 import { deleteTodo, getTodos, postTodo, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
@@ -10,11 +10,11 @@ import { Footer } from './components/footer';
 import { ErrorMessage } from './components/errorsUnderFooter';
 import { MainSection } from './components/section';
 import { Header } from './components/header';
+import { Filter } from './types/Filter';
 
 export const App: React.FC = () => {
   const [todoList, setTodoList] = useState<Todo[]>([]);
-  const [filteredTodoList, setFilteredTodoList] = useState<Todo[]>([]);
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedFilter, setSelectedFilter] = useState<Filter>(Filter.All);
   const [title, setTitle] = useState('');
   const [loader, setLoader] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
@@ -26,7 +26,6 @@ export const App: React.FC = () => {
     getTodos(USER_ID)
       .then(data => {
         setTodoList(data);
-        setFilteredTodoList(data);
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
@@ -40,29 +39,17 @@ export const App: React.FC = () => {
     }
   }, [tempTodo, deletingTodos]);
 
-  const filterTodos = useCallback(
-    (status: string): void => {
-      setSelectedFilter(status);
-
-      switch (status) {
-        case 'active':
-          setFilteredTodoList(todoList.filter(todo => !todo.completed));
-          break;
-        case 'completed':
-          setFilteredTodoList(todoList.filter(todo => todo.completed));
-          break;
-        case 'all':
-        default:
-          setFilteredTodoList(todoList);
-          break;
-      }
-    },
-    [todoList],
-  );
-
-  useEffect(() => {
-    filterTodos(selectedFilter);
-  }, [todoList, filterTodos, selectedFilter]);
+  const filterTodos = useMemo(() => {
+    switch (selectedFilter) {
+      case Filter.Active:
+        return todoList.filter(todo => !todo.completed);
+      case Filter.Completed:
+        return todoList.filter(todo => todo.completed);
+      case Filter.All:
+      default:
+        return todoList;
+    }
+  }, [todoList, selectedFilter]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -133,7 +120,7 @@ export const App: React.FC = () => {
     }
   }
 
-  async function handleDeleteCompletedTodo() {
+  const handleDeleteCompletedTodo = async () => {
     const completedTodoIds = todoList
       .filter(todo => todo.completed)
       .map(todo => todo.id);
@@ -156,7 +143,7 @@ export const App: React.FC = () => {
     if (hasError) {
       sendErrorMessage('Unable to delete a todo', setErrorMessage);
     }
-  }
+  };
 
   return (
     <div className="todoapp">
@@ -164,7 +151,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          filteredTodoList={filteredTodoList}
+          filteredTodoList={filterTodos}
           submitTodo={submitTodo}
           inputRef={inputRef}
           title={title}
@@ -173,7 +160,7 @@ export const App: React.FC = () => {
         />
 
         <MainSection
-          filteredTodoList={filteredTodoList}
+          filteredTodoList={filterTodos}
           deletingTodos={deletingTodos}
           handleToggleCompletion={handleToggleCompletion}
           handleDeleteTodo={handleDeleteTodo}
@@ -184,7 +171,7 @@ export const App: React.FC = () => {
           <Footer
             todoList={todoList}
             selectedFilter={selectedFilter}
-            filterTodos={filterTodos}
+            setSelectedFilter={(filter: Filter) => setSelectedFilter(filter)}
             handleDeleteCompletedTodo={handleDeleteCompletedTodo}
           />
         )}
